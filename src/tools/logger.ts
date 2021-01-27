@@ -1,7 +1,7 @@
 import winston from 'winston';
 
 export default winston.createLogger({
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  level: process.env.NODE_ENV === 'prod' ? 'info' : 'debug',
   exitOnError: false,
   handleExceptions: true,
   format: winston.format.combine(

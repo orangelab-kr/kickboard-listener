@@ -21,7 +21,7 @@ export default class Dynamodb {
     this.client = new AWS.DynamoDB();
     this.mapper = new DataMapper({
       client: this.client,
-      tableNamePrefix: `${process.env.NODE_ENV || 'production'}-`,
+      tableNamePrefix: `${process.env.NODE_ENV || 'prod'}-`,
     });
 
     await this.createTable();
