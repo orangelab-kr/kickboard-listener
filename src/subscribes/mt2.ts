@@ -11,7 +11,7 @@ export default async function onMT2Event(
   packet: PacketMT2,
   done: () => void
 ): Promise<void> {
-  logger.debug(
+  logger.info(
     `[Subscribe] MT2 - ${kickboard.kickboardId} 요청을 처리를 시작합니다.`
   );
 

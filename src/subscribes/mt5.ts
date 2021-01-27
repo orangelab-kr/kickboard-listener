@@ -11,7 +11,7 @@ export default async function onMT5Event(
   packet: PacketMT5,
   done: () => void
 ): Promise<void> {
-  logger.debug(
+  logger.info(
     `[Subscribe] MT5 - ${kickboard.kickboardId} 요청을 처리를 시작합니다.`
   );
 
