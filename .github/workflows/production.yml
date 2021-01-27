@@ -34,7 +34,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: kickboard-listener
         run: |
-          echo ::set-output name=PACKAGE_VERSION::$(node -p 'require("./package.json").version')
+          export PACKAGE_VERSION=$(node -p 'require("./package.json").version')
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -t $ECR_REGISTRY/$ECR_REPOSITORY:$PACKAGE_VERSION --build-arg CODEARTIFACT_AUTH_TOKEN=${{ steps.login-codeartifact.outputs.CODEARTIFACT_AUTH_TOKEN }} .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$PACKAGE_VERSION
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
