@@ -26,7 +26,7 @@ jobs:
 
       - name: Login to Code Artifact
         id: login-codeartifact
-        run: echo '::set-output name=CODEARTIFACT_AUTH_TOKEN=::$(aws codeartifact get-authorization-token --domain hikick --domain-owner 547032093617 --query authorizationToken --output text --region ap-northeast-1)'
+        run: echo ::set-output name=CODEARTIFACT_AUTH_TOKEN=::$(aws codeartifact get-authorization-token --domain hikick --domain-owner 547032093617 --query authorizationToken --output text --region ap-northeast-1)
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
@@ -34,11 +34,10 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: kickboard-listener
         run: |
-          echo "::set-output name=PACKAGE_VERSION::$(node -p 'require("./package.json").version')"
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -t $ECR_REGISTRY/$ECR_REPOSITORY:$PACKAGE_VERSION --build-arg CODEARTIFACT_AUTH_TOKEN=${{ steps.login-codeartifact.outputs.CODEARTIFACT_AUTH_TOKEN }} .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$PACKAGE_VERSION
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -t $ECR_REGISTRY/$ECR_REPOSITORY:$(node -p 'require("./package.json").version') --build-arg CODEARTIFACT_AUTH_TOKEN=${{ steps.login-codeartifact.outputs.CODEARTIFACT_AUTH_TOKEN }} .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$(node -p 'require("./package.json").version')
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$PACKAGE_VERSION"
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$(node -p 'require("./package.json").version')"
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-worker-def
