@@ -1,21 +1,24 @@
 import * as Sentry from '@sentry/node';
 
-import Dynamodb from './tools/dynamodb';
+import {
+  onBatterySubscribe,
+  onConfigSubscribe,
+  onInfoSubscribe,
+  onStatusSubscribe,
+} from './subscribes';
+
 import { KickboardService } from 'kickboard-sdk';
+import MongoDB from './tools/mongodb';
 import dotenv from 'dotenv';
 import logger from './tools/logger';
-import onMT1Event from './subscribes/mt1';
-import onMT2Event from './subscribes/mt2';
-import onMT5Event from './subscribes/mt5';
 
-if (process.env.NODE_ENV === 'development') dotenv.config();
+if (process.env.NODE_ENV === 'dev') dotenv.config();
 
 async function main() {
   try {
     logger.info('[Main] 시스템이 활성화되고 있습니다.');
-
     initSentry();
-    await Dynamodb.init();
+    await MongoDB.init();
 
     const service = await connect();
     await registerSubscribe(service);
@@ -49,14 +52,17 @@ async function connect(): Promise<KickboardService> {
 }
 
 async function registerSubscribe(service: KickboardService): Promise<void> {
-  service.on('mt1', onMT1Event);
-  logger.info('[Subscribe] MT1 이벤트 리스너가 활성화되었습니다.');
+  service.on('info', onInfoSubscribe);
+  logger.info('[Subscribe] 정보 이벤트 리스너가 활성화되었습니다.');
 
-  service.on('mt2', onMT2Event);
-  logger.info('[Subscribe] MT2 이벤트 리스너가 활성화되었습니다.');
+  service.on('status', onStatusSubscribe);
+  logger.info('[Subscribe] 상태 이벤트 리스너가 활성화되었습니다.');
 
-  service.on('mt5', onMT5Event);
-  logger.info('[Subscribe] MT5 이벤트 리스너가 활성화되었습니다.');
+  service.on('config', onConfigSubscribe);
+  logger.info('[Subscribe] 설정 이벤트 리스너가 활성화되었습니다.');
+
+  service.on('battery', onBatterySubscribe);
+  logger.info('[Subscribe] 배터리 이벤트 리스너가 활성화되었습니다.');
 
   await service.setSubscribe(process.env.KICKBOARD_SERVICE_QUEUE || 'updates');
   logger.info('[Subscribe] 구독 시스템이 활성화되었습니다.');
@@ -70,4 +76,5 @@ async function initSentry() {
 
   logger.info('[Sentry] 보고 시스템이 활성화되었습니다.');
 }
+
 main();
