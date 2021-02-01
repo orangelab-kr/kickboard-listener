@@ -49,6 +49,7 @@ export const ConfigSchema = new Schema({
   speedLimit: { type: Number, required: false },
   networkMode: { type: String, required: false },
   updatedAt: { type: Date, required: true, default: Date.now },
+  createdAt: { type: Date, required: true, default: Date.now },
 });
 
 export const ConfigModel = model<IConfig>('config', ConfigSchema);

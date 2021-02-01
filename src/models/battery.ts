@@ -1,4 +1,4 @@
-import { Document, model, Schema } from 'mongoose';
+import { Document, Schema, model } from 'mongoose';
 
 export interface IBattery extends Document {
   kickboardId: string;
@@ -20,6 +20,7 @@ export const BatterySchema = new Schema({
   cellType: { type: String, required: false },
   cells: { type: [Number], required: false, default: [] },
   updatedAt: { type: Date, required: true, default: Date.now },
+  createdAt: { type: Date, required: true, default: Date.now },
 });
 
 export const BatteryModel = model<IBattery>('battery', BatterySchema);

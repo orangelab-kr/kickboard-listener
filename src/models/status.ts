@@ -4,7 +4,6 @@ import {
   PacketStatusNetwork,
   PacketStatusPower,
   PacketStatusTrip,
-  PacketStatusVehicle,
 } from 'kickboard-sdk';
 
 export interface IStatus extends Document {
@@ -14,8 +13,8 @@ export interface IStatus extends Document {
   gps: PacketStatusGps;
   network: PacketStatusNetwork;
   trip: PacketStatusTrip;
-  vehicle: PacketStatusVehicle;
   power: PacketStatusPower;
+  isEnabled: boolean;
   isLightsOn: boolean;
   isBuzzerOn: boolean;
   isControllerChecked: boolean;
@@ -26,6 +25,7 @@ export interface IStatus extends Document {
   isKickstandOn: boolean;
   isLineLocked: boolean;
   isBatteryLocked: boolean;
+  reportReason: number[];
   speed: number;
   createdAt: Date;
 }
@@ -51,11 +51,6 @@ export const StatusTripSchema = new Schema({
   distance: { type: Number, required: false },
 });
 
-export const StatusVehicleSchema = new Schema({
-  isEnabled: { type: Boolean, required: false },
-  reportReason: { type: [Number], required: false },
-});
-
 export const StatusPowerDetailsSchema = new Schema({
   battery: { type: Number, required: false },
   isCharging: { type: Boolean, required: false },
@@ -75,8 +70,8 @@ export const StatusSchema = new Schema({
   gps: { type: StatusGpsSchema, required: false },
   network: { type: StatusNetworkSchema, required: false },
   trip: { type: StatusTripSchema, required: false },
-  vehicle: { type: StatusVehicleSchema, required: false },
   power: { type: StatusPowerSchema, required: false },
+  isEnabled: { type: Boolean, required: false },
   isLightsOn: { type: Boolean, required: false },
   isBuzzerOn: { type: Boolean, required: false },
   isControllerChecked: { type: Boolean, required: false },
@@ -87,6 +82,7 @@ export const StatusSchema = new Schema({
   isKickstandOn: { type: Boolean, required: false },
   isLineLocked: { type: Boolean, required: false },
   isBatteryLocked: { type: Boolean, required: false },
+  reportReason: { type: [Number], required: false },
   speed: { type: Number, required: false },
   createdAt: { type: Date, required: true, default: Date.now },
 });

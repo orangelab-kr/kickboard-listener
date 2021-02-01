@@ -22,8 +22,8 @@ export default async function onStatusSubscribe(
       gps: packet.gps,
       network: packet.network,
       trip: packet.trip,
-      vehice: packet.vehicle,
       power: packet.power,
+      isEnabled: packet.isEnabled,
       isLightsOn: packet.isLightsOn,
       isBuzzerOn: packet.isBuzzerOn,
       isControllerChecked: packet.isControllerChecked,
@@ -34,6 +34,7 @@ export default async function onStatusSubscribe(
       isKickstandOn: packet.isKickstandOn,
       isLineLocked: packet.isLineLocked,
       isBatteryLocked: packet.isBatteryLocked,
+      reportReason: packet.reportReason,
       speed: packet.speed,
     };
 

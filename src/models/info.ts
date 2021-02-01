@@ -24,6 +24,7 @@ export const InfoSchema = new Schema({
   iotVersion: { type: InfoVersionSchema, required: false },
   ecuVersion: { type: InfoVersionSchema, required: false },
   updatedAt: { type: Date, required: true, default: Date.now },
+  createdAt: { type: Date, required: true, default: Date.now },
 });
 
 export const InfoModel = model<IInfo>('info', InfoSchema);
