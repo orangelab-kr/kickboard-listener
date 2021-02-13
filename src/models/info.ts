@@ -1,6 +1,6 @@
 import { Document, Schema, model } from 'mongoose';
 
-export interface IInfo extends Document {
+export interface Info extends Document {
   kickboardId: string;
   batterySN: string;
   totalTrip: number;
@@ -27,4 +27,4 @@ export const InfoSchema = new Schema({
   createdAt: { type: Date, required: true, default: Date.now },
 });
 
-export const InfoModel = model<IInfo>('info', InfoSchema);
+export const InfoModel = model<Info>('info', InfoSchema);

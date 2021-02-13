@@ -1,6 +1,6 @@
 import { Document, Schema, model } from 'mongoose';
 
-export interface IBattery extends Document {
+export interface Battery extends Document {
   kickboardId: string;
   batterySN: string;
   totalTrip: number;
@@ -23,4 +23,4 @@ export const BatterySchema = new Schema({
   createdAt: { type: Date, required: true, default: Date.now },
 });
 
-export const BatteryModel = model<IBattery>('battery', BatterySchema);
+export const BatteryModel = model<Battery>('battery', BatterySchema);

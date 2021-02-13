@@ -6,7 +6,7 @@ import {
   PacketStatusTrip,
 } from 'kickboard-sdk';
 
-export interface IStatus extends Document {
+export interface Status extends Document {
   kickboardId: string;
   timestamp: Date;
   messageNumber: number;
@@ -87,4 +87,4 @@ export const StatusSchema = new Schema({
   createdAt: { type: Date, required: true, default: Date.now },
 });
 
-export const StatusModel = model<IStatus>('status', StatusSchema);
+export const StatusModel = model<Status>('status', StatusSchema);

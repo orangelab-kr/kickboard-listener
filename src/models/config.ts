@@ -5,7 +5,7 @@ import {
   PacketConfigReportInterval,
 } from 'kickboard-sdk';
 
-export interface IConfig extends Document {
+export interface Config extends Document {
   kickboardId: string;
   gprs: PacketConfigGprs;
   mqtt: PacketConfigMqtt;
@@ -52,4 +52,4 @@ export const ConfigSchema = new Schema({
   createdAt: { type: Date, required: true, default: Date.now },
 });
 
-export const ConfigModel = model<IConfig>('config', ConfigSchema);
+export const ConfigModel = model<Config>('config', ConfigSchema);
