@@ -1,8 +1,8 @@
 import * as Sentry from '@sentry/node';
 
 import { KickboardClient, PacketStatus } from 'kickboard-sdk';
+import { KickboardModel, StatusModel } from '../models';
 
-import { StatusModel } from '../models';
 import logger from '../tools/logger';
 
 export default async function onStatusSubscribe(
@@ -15,8 +15,9 @@ export default async function onStatusSubscribe(
   );
 
   try {
+    const { kickboardId } = kickboard;
     const data = {
-      kickboardId: kickboard.kickboardId,
+      kickboardId,
       timestamp: packet.timestamp.toDate(),
       messageNumber: packet.messageNumber,
       gps: packet.gps,
@@ -38,7 +39,8 @@ export default async function onStatusSubscribe(
       speed: packet.speed,
     };
 
-    await StatusModel.create(data);
+    const { _id } = await StatusModel.create(data);
+    await KickboardModel.updateOne({ kickboardId }, { status: _id });
   } catch (err) {
     logger.error(
       `[Subscribe] 상태 - ${kickboard.kickboardId} 구독을 저장하지 못했습니다.`

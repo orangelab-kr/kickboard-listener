@@ -1,8 +1,8 @@
 import * as Sentry from '@sentry/node';
 
+import { InfoModel, KickboardMode, KickboardModel } from '../models';
 import { KickboardClient, PacketInfo } from 'kickboard-sdk';
 
-import { InfoModel } from '../models';
 import logger from '../tools/logger';
 
 export default async function onInfoSubscribe(
@@ -27,10 +27,11 @@ export default async function onInfoSubscribe(
       updatedAt: new Date(),
     };
 
+    await isUnregistered(kickboard.kickboardId);
     await InfoModel.updateOne(where, data, options);
   } catch (err) {
     logger.error(
-      `[Subscribe] 정보 - ${kickboard.kickboardId}  구독을 저장하지 못했습니다.`
+      `[Subscribe] 정보 - ${kickboard.kickboardId} 구독을 저장하지 못했습니다.`
     );
 
     logger.error(`[Subscribe] ${err.stack}`);
@@ -38,4 +39,13 @@ export default async function onInfoSubscribe(
   } finally {
     done();
   }
+}
+async function isUnregistered(kickboardId: string): Promise<void> {
+  const where = { kickboardId };
+  const kickboard = await KickboardModel.findOne(where);
+  if (!kickboard || kickboard.mode !== KickboardMode.UNREGISTERED) return;
+  await KickboardModel.updateOne(where, { mode: KickboardMode.READY });
+  logger.info(
+    `[Subscribe] 정보 - ${kickboard.kickboardId} 신규 킥보드를 발견하였습니다.`
+  );
 }
