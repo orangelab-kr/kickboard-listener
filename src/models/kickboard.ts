@@ -1,12 +1,16 @@
 import { Document, Schema, model } from 'mongoose';
 
-import { Status } from './status';
+import { StatusDoc } from './status';
 
-export interface Kickboard extends Document {
+export interface KickboardDoc extends Document {
   kickboardId: string;
-  status: Status;
-  updatedAt: Date;
-  createdAt: Date;
+  kickboardCode: string;
+  mode: KickboardMode;
+  lost: KickboardLost;
+  collect: KickboardCollect;
+  status?: StatusDoc;
+  updatedAt?: Date;
+  createdAt?: Date;
 }
 
 export enum KickboardMode {
@@ -32,19 +36,26 @@ export enum KickboardCollect {
   OTHER = 3,
 }
 
-export const KickboardSchema = new Schema({
-  kickboardId: { type: String, required: true },
-  mode: {
-    type: Number,
-    enum: KickboardMode,
-    default: KickboardMode.UNREGISTERED,
-    required: true,
+export const KickboardSchema = new Schema(
+  {
+    kickboardId: { type: String, required: true, unique: true },
+    kickboardCode: { type: String, required: true, unique: true },
+    mode: {
+      type: Number,
+      enum: KickboardMode,
+      default: KickboardMode.UNREGISTERED,
+      required: true,
+    },
+    lost: { type: Number, enum: KickboardLost, default: null, required: false },
+    collect: {
+      type: Number,
+      enum: KickboardCollect,
+      default: null,
+      required: false,
+    },
+    status: { type: Schema.Types.ObjectId, ref: 'status' },
   },
-  lost: { type: Number, enum: KickboardLost, required: false },
-  collect: { type: Number, enum: KickboardCollect, required: false },
-  status: { type: Schema.Types.ObjectId, ref: 'status' },
-  updatedAt: { type: Date, required: true, default: Date.now },
-  createdAt: { type: Date, required: true, default: Date.now },
-});
+  { timestamps: true }
+);
 
-export const KickboardModel = model<Kickboard>('kickboard', KickboardSchema);
+export const KickboardModel = model<KickboardDoc>('kickboard', KickboardSchema);

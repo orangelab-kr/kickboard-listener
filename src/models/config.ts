@@ -5,7 +5,7 @@ import {
   PacketConfigReportInterval,
 } from 'kickboard-sdk';
 
-export interface Config extends Document {
+export interface ConfigDoc extends Document {
   kickboardId: string;
   gprs: PacketConfigGprs;
   mqtt: PacketConfigMqtt;
@@ -38,18 +38,19 @@ export const ConfigReportIntervalSchema = new Schema({
   static: { type: Number, required: false },
 });
 
-export const ConfigSchema = new Schema({
-  kickboardId: { type: String, required: true },
-  gprs: { type: ConfigGprsSchema, required: false },
-  mqtt: { type: ConfigMqttSchema, required: false },
-  reportInterval: { type: ConfigReportIntervalSchema, required: false },
-  networks: { type: [String], required: false },
-  impact: { type: Number, required: false },
-  bluetoothKey: { type: String, required: false },
-  speedLimit: { type: Number, required: false },
-  networkMode: { type: String, required: false },
-  updatedAt: { type: Date, required: true, default: Date.now },
-  createdAt: { type: Date, required: true, default: Date.now },
-});
+export const ConfigSchema = new Schema(
+  {
+    kickboardId: { type: String, required: true, unique: true },
+    gprs: { type: ConfigGprsSchema, required: false },
+    mqtt: { type: ConfigMqttSchema, required: false },
+    reportInterval: { type: ConfigReportIntervalSchema, required: false },
+    networks: { type: [String], required: false },
+    impact: { type: Number, required: false },
+    bluetoothKey: { type: String, required: false },
+    speedLimit: { type: Number, required: false },
+    networkMode: { type: String, required: false },
+  },
+  { timestamps: true }
+);
 
-export const ConfigModel = model<Config>('config', ConfigSchema);
+export const ConfigModel = model<ConfigDoc>('config', ConfigSchema);
