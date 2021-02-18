@@ -1,10 +1,10 @@
-import { Document, Schema, model } from 'mongoose';
 import {
   PacketStatusGps,
   PacketStatusNetwork,
   PacketStatusPower,
   PacketStatusTrip,
 } from 'kickboard-sdk';
+import { Document, model, Schema } from 'mongoose';
 
 export interface StatusDoc extends Document {
   kickboardId: string;
@@ -20,7 +20,7 @@ export interface StatusDoc extends Document {
   isControllerChecked: boolean;
   isIotChecked: boolean;
   isBatteryChecked: boolean;
-  isFailDown: boolean;
+  isFallDown: boolean;
   isEBSBrakeOn: boolean;
   isKickstandOn: boolean;
   isLineLocked: boolean;
@@ -78,7 +78,7 @@ export const StatusSchema = new Schema(
     isControllerChecked: { type: Boolean, required: false },
     isIotChecked: { type: Boolean, required: false },
     isBatteryChecked: { type: Boolean, required: false },
-    isFailDown: { type: Boolean, required: false },
+    isFallDown: { type: Boolean, required: false },
     isEBSBrakeOn: { type: Boolean, required: false },
     isKickstandOn: { type: Boolean, required: false },
     isLineLocked: { type: Boolean, required: false },

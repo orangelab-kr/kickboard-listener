@@ -1,8 +1,6 @@
 import * as Sentry from '@sentry/node';
-
 import { KickboardClient, PacketStatus } from 'kickboard-sdk';
 import { KickboardModel, StatusModel } from '../models';
-
 import logger from '../tools/logger';
 
 export default async function onStatusSubscribe(
@@ -30,7 +28,7 @@ export default async function onStatusSubscribe(
       isControllerChecked: packet.isControllerChecked,
       isIotChecked: packet.isIotChecked,
       isBatteryChecked: packet.isBatteryChecked,
-      isFailDown: packet.isFailDown,
+      isFallDown: packet.isFallDown,
       isEBSBrakeOn: packet.isEBSBrakeOn,
       isKickstandOn: packet.isKickstandOn,
       isLineLocked: packet.isLineLocked,
