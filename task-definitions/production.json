@@ -14,7 +14,7 @@
         "logDriver": "awslogs",
         "secretOptions": null,
         "options": {
-          "awslogs-group": "/ecs/kickboard-listener",
+          "awslogs-group": "/ecs/prod-kickboard-listener",
           "awslogs-region": "ap-northeast-2",
           "awslogs-stream-prefix": "ecs"
         }
