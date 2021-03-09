@@ -1,10 +1,10 @@
+import { Document, Schema, model } from 'mongoose';
 import {
   PacketStatusGps,
   PacketStatusNetwork,
   PacketStatusPower,
   PacketStatusTrip,
 } from 'kickboard-sdk';
-import { Document, model, Schema } from 'mongoose';
 
 export interface StatusDoc extends Document {
   kickboardId: string;
@@ -65,7 +65,7 @@ export const StatusPowerSchema = new Schema({
 
 export const StatusSchema = new Schema(
   {
-    kickboardId: { type: String, required: true },
+    kickboardId: { type: String, index: true, required: true },
     timestamp: { type: String, required: false },
     messageNumber: { type: Number, required: false },
     gps: { type: StatusGpsSchema, required: false },
