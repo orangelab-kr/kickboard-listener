@@ -5,6 +5,7 @@ import { StatusDoc } from './status';
 export interface KickboardDoc extends Document {
   kickboardId: string;
   kickboardCode: string;
+  franchiseId: string;
   mode: KickboardMode;
   lost: KickboardLost;
   collect: KickboardCollect;
@@ -40,6 +41,7 @@ export const KickboardSchema = new Schema(
   {
     kickboardId: { type: String, required: true, unique: true },
     kickboardCode: { type: String, required: true, unique: true },
+    franchiseId: { type: String, required: true, index: true },
     mode: {
       type: Number,
       enum: KickboardMode,

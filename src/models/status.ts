@@ -1,10 +1,20 @@
-import { Document, Schema, model } from 'mongoose';
 import {
-  PacketStatusGps,
   PacketStatusNetwork,
   PacketStatusPower,
   PacketStatusTrip,
 } from 'kickboard-sdk';
+import { Moment } from 'moment';
+import { Document, model, Schema } from 'mongoose';
+
+export declare class PacketStatusGps {
+  timestamp: Moment;
+  latitude: number;
+  longitude: number;
+  satelliteUsedCount: number;
+  isValid: boolean;
+  updatedAt: Date;
+  speed: number;
+}
 
 export interface StatusDoc extends Document {
   kickboardId: string;
@@ -34,6 +44,7 @@ export const StatusGpsSchema = new Schema({
   timestamp: { type: Date, required: false },
   latitude: { type: Number, required: false },
   longitude: { type: Number, required: false },
+  updatedAt: { type: Date, required: false },
   satelliteUsedCount: { type: Number, required: false },
   isValid: { type: Boolean, required: false },
   speed: { type: Number, required: false },

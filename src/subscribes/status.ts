@@ -1,8 +1,6 @@
 import * as Sentry from '@sentry/node';
-
 import { KickboardClient, PacketStatus } from 'kickboard-sdk';
 import { KickboardModel, StatusModel } from '../models';
-
 import logger from '../tools/logger';
 
 export default async function onStatusSubscribe(
@@ -16,11 +14,31 @@ export default async function onStatusSubscribe(
 
   try {
     const { kickboardId } = kickboard;
+    const beforeStatus = await StatusModel.findOne({ kickboardId }).sort({
+      createdAt: -1,
+    });
+
+    const newLatitude = packet.gps.latitude;
+    const newLongitude = packet.gps.longitude;
+    const lastLatitude = beforeStatus ? beforeStatus.gps.latitude : 0;
+    const lastLongitude = beforeStatus ? beforeStatus.gps.longitude : 0;
+    const lastUpdatedAt = beforeStatus
+      ? beforeStatus.gps.updatedAt
+      : new Date();
+
     const data = {
       kickboardId,
       timestamp: packet.timestamp.toDate(),
       messageNumber: packet.messageNumber,
-      gps: packet.gps,
+      gps: {
+        timestamp: packet.gps.timestamp,
+        latitude: newLatitude === 0 ? lastLatitude : newLatitude,
+        longitude: newLongitude === 0 ? lastLongitude : newLongitude,
+        updatedAt: newLongitude === 0 ? lastUpdatedAt : new Date(),
+        satelliteUsedCount: packet.gps.satelliteUsedCount,
+        isValid: packet.gps.isValid,
+        speed: packet.gps.speed,
+      },
       network: packet.network,
       trip: packet.trip,
       power: packet.power,
