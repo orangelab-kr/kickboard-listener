@@ -1,14 +1,16 @@
 import * as Sentry from '@sentry/node';
-import dotenv from 'dotenv';
-import { KickboardService } from 'kickboard-sdk';
+
 import {
   onBatterySubscribe,
   onConfigSubscribe,
   onInfoSubscribe,
   onStatusSubscribe,
 } from './subscribes';
-import logger from './tools/logger';
+
+import { KickboardService } from 'kickboard-sdk';
 import MongoDB from './tools/mongodb';
+import dotenv from 'dotenv';
+import logger from './tools/logger';
 
 if (process.env.NODE_ENV === 'dev') dotenv.config({ path: '.env.dev' });
 
@@ -62,7 +64,11 @@ async function registerSubscribe(service: KickboardService): Promise<void> {
   service.on('battery', onBatterySubscribe);
   logger.info('[Subscribe] 배터리 이벤트 리스너가 활성화되었습니다.');
 
-  await service.setSubscribe(process.env.KICKBOARD_SERVICE_QUEUE || 'updates');
+  await service.setSubscribe(
+    process.env.KICKBOARD_SERVICE_QUEUE || 'updates',
+    Number(process.env.KICKBOARD_SERVICE_MAX_QUEUE || 100)
+  );
+
   logger.info('[Subscribe] 구독 시스템이 활성화되었습니다.');
 }
 
