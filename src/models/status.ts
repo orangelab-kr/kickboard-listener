@@ -1,10 +1,11 @@
+import { Document, Schema, model } from 'mongoose';
 import {
   PacketStatusNetwork,
   PacketStatusPower,
   PacketStatusTrip,
 } from 'kickboard-sdk';
+
 import { Moment } from 'moment';
-import { Document, model, Schema } from 'mongoose';
 
 export declare class PacketStatusGps {
   timestamp: Moment;
@@ -100,4 +101,5 @@ export const StatusSchema = new Schema(
   { timestamps: { createdAt: 'createdAt' } }
 );
 
+StatusSchema.index({ createdAt: -1 });
 export const StatusModel = model<StatusDoc>('status', StatusSchema);

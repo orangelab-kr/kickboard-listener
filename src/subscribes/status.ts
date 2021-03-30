@@ -10,7 +10,8 @@ export default async function onStatusSubscribe(
   packet: PacketStatus,
   done: () => void
 ): Promise<void> {
-  logger.info(
+  const startTime = new Date();
+  logger.debug(
     `[Subscribe] 상태 - ${kickboard.kickboardId} 요청을 처리를 시작합니다.`
   );
 
@@ -34,9 +35,9 @@ export default async function onStatusSubscribe(
       messageNumber: packet.messageNumber,
       gps: {
         timestamp: packet.gps.timestamp,
-        latitude: newLatitude === 0 ? lastLatitude : newLatitude,
-        longitude: newLongitude === 0 ? lastLongitude : newLongitude,
-        updatedAt: newLongitude === 0 ? lastUpdatedAt : new Date(),
+        latitude: newLatitude !== 0 ? lastLatitude : newLatitude,
+        longitude: newLongitude !== 0 ? lastLongitude : newLongitude,
+        updatedAt: newLatitude !== 0 ? lastUpdatedAt : new Date(),
         satelliteUsedCount: packet.gps.satelliteUsedCount,
         isValid: packet.gps.isValid,
         speed: packet.gps.speed,
@@ -61,6 +62,10 @@ export default async function onStatusSubscribe(
 
     const { _id } = await StatusModel.create(data);
     await KickboardModel.updateOne({ kickboardId }, { status: _id });
+    const time = Date.now() - startTime.getTime();
+    logger.info(
+      `[Subscribe] 상태 - ${kickboard.kickboardId} 처리를 완료하였습니다. ${time}ms`
+    );
   } catch (err) {
     logger.error(
       `[Subscribe] 상태 - ${kickboard.kickboardId} 구독을 저장하지 못했습니다.`
