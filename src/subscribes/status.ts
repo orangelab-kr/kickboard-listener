@@ -23,6 +23,7 @@ export default async function onStatusSubscribe(
 
     const newLatitude = packet.gps.latitude;
     const newLongitude = packet.gps.longitude;
+    const isValid = packet.gps.isValid;
     const lastLatitude = beforeStatus ? beforeStatus.gps.latitude : 0;
     const lastLongitude = beforeStatus ? beforeStatus.gps.longitude : 0;
     const lastUpdatedAt = beforeStatus
@@ -35,9 +36,9 @@ export default async function onStatusSubscribe(
       messageNumber: packet.messageNumber,
       gps: {
         timestamp: packet.gps.timestamp,
-        latitude: newLatitude !== 0 ? lastLatitude : newLatitude,
-        longitude: newLongitude !== 0 ? lastLongitude : newLongitude,
-        updatedAt: newLatitude !== 0 ? lastUpdatedAt : new Date(),
+        latitude: !isValid ? lastLatitude : newLatitude,
+        longitude: !isValid ? lastLongitude : newLongitude,
+        updatedAt: !isValid ? lastUpdatedAt : new Date(),
         satelliteUsedCount: packet.gps.satelliteUsedCount,
         isValid: packet.gps.isValid,
         speed: packet.gps.speed,
