@@ -1165,10 +1165,10 @@ kareem@2.3.2:
   resolved "https://hikick-547032093617.d.codeartifact.ap-northeast-1.amazonaws.com:443/npm/hikick/kareem/-/kareem-2.3.2.tgz#78c4508894985b8d38a0dc15e1a8e11078f2ca93"
   integrity sha512-STHz9P7X2L4Kwn72fA4rGyqyXdmrMSdxqHx9IXon/FXluXieaFA6KJ2upcHAHxQPQ0LeM/OjLrhFxifHewOALQ==
 
-kickboard-sdk@^1.3.1:
-  version "1.2.2"
-  resolved "https://hikick-547032093617.d.codeartifact.ap-northeast-1.amazonaws.com:443/npm/hikick/kickboard-sdk/-/kickboard-sdk-1.2.2.tgz#69527a7229e414595ead0748e4d7e981589c4d15"
-  integrity sha512-GLhYZxgb9lVHEVwuhpp8URnNiZ7ruCQfbESa4nzQ+2MAjkY7QiN5WwSRYQTs4TpkS2c3Gfs/KR12J/lPXE6vcQ==
+kickboard-sdk@^1.3.0:
+  version "1.3.0"
+  resolved "https://hikick-547032093617.d.codeartifact.ap-northeast-1.amazonaws.com:443/npm/hikick/kickboard-sdk/-/kickboard-sdk-1.3.0.tgz#d2f3401968d9c71bb822b785a8e00bf9089ff092"
+  integrity sha512-0h2aZ9Gd+i1CwnwkLeqIhryARedIdaxAwBqLGVVhcb55ZPYJSh+rqkJKI0xQ3AZ35UXJolOHi2TYxqzrs/tfGg==
   dependencies:
     amqplib "^0.6.0"
     class-validator "^0.13.1"

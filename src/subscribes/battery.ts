@@ -8,6 +8,7 @@ import logger from '../tools/logger';
 export default async function onBatterySubscribe(
   kickboard: KickboardClient,
   packet: PacketBattery,
+  updatedAt: Date,
   done: () => void
 ): Promise<void> {
   const startTime = new Date();
@@ -26,7 +27,7 @@ export default async function onBatterySubscribe(
       totalCapacity: packet.totalCapacity,
       cellType: packet.cellType,
       cells: packet.cells,
-      updatedAt: new Date(),
+      updatedAt,
     };
 
     await BatteryModel.updateOne(where, data, options);

@@ -11,6 +11,7 @@ import { KickboardPermission, LocationPermission } from 'openapi-internal-sdk';
 
 import InternalClient from '../tools/internalClient';
 import logger from '../tools/logger';
+import moment from 'moment';
 
 const internalLocationClient = InternalClient.getLocation([
   LocationPermission.GEOFENCES_LOCATION,
@@ -25,6 +26,7 @@ const internalKickboardClient = InternalClient.getKickboard([
 export default async function onStatusSubscribe(
   kickboardClient: KickboardClient,
   packet: PacketStatus,
+  createdAt: Date,
   done: () => void
 ): Promise<void> {
   const { kickboardId } = kickboardClient;
@@ -82,12 +84,19 @@ export default async function onStatusSubscribe(
       isBatteryLocked: packet.isBatteryLocked,
       reportReason: packet.reportReason,
       speed: packet.speed,
+      createdAt,
     };
 
     const { _id } = await StatusModel.create(data);
     await KickboardModel.updateOne({ kickboardId }, { status: _id });
-    await checkLocationGeofence(kickboardClient, kickboardDoc, packet);
     const time = Date.now() - startTime.getTime();
+    await checkLocationGeofence(
+      kickboardClient,
+      kickboardDoc,
+      packet,
+      createdAt
+    );
+
     logger.info(
       `[Subscribe] 상태 - ${kickboardId} 처리를 완료하였습니다. ${time}ms`
     );
@@ -96,7 +105,11 @@ export default async function onStatusSubscribe(
       `[Subscribe] 상태 - ${kickboardId} 구독을 저장하지 못했습니다.`
     );
 
-    logger.error(`[Subscribe] ${err.stack}`);
+    if (process.env.NODE_ENV === 'dev') {
+      logger.error(err.name);
+      logger.error(err.stack);
+    }
+
     Sentry.captureException(err);
   } finally {
     done();
@@ -106,16 +119,18 @@ export default async function onStatusSubscribe(
 async function checkLocationGeofence(
   kickboardClient: KickboardClient,
   kickboardDoc: KickboardDoc,
-  packet: PacketStatus
+  packet: PacketStatus,
+  createdAt: Date
 ): Promise<void> {
   const { kickboardCode, kickboardId } = kickboardDoc;
 
   if (
     process.env.NODE_ENV === 'prod' ||
-    kickboardDoc.mode !== KickboardMode.INUSE
+    kickboardDoc.mode !== KickboardMode.INUSE ||
+    moment(createdAt).add(1, 'minutes').isBefore()
   ) {
     logger.debug(
-      `[Subscribe] 상태 - ${kickboardId} 속도 제한을 하지 않습니다. 이용 중이지 않거나 프로덕션 모드입니다.`
+      `[Subscribe] 상태 - ${kickboardId} 속도 제한을 하지 않습니다. 1분 이전 데이터이거나, 이용 중이지 않거나 프로덕션 모드입니다.`
     );
 
     return;
@@ -141,6 +156,15 @@ async function checkLocationGeofence(
 
     await kickboardClient.setSpeedLimit(maxSpeed || 25);
   } catch (err) {
-    console.log(err);
+    logger.error(
+      `[Subscribe] 상태 - ${kickboardId} 속도 제한을 할 수 없습니다.`
+    );
+
+    if (process.env.NODE_ENV === 'dev') {
+      logger.error(err.name);
+      logger.error(err.stack);
+    }
+
+    Sentry.captureException(err);
   }
 }

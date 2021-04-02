@@ -8,6 +8,7 @@ import logger from '../tools/logger';
 export default async function onInfoSubscribe(
   kickboard: KickboardClient,
   packet: PacketInfo,
+  updatedAt: Date,
   done: () => void
 ): Promise<void> {
   const startTime = new Date();
@@ -25,7 +26,7 @@ export default async function onInfoSubscribe(
       macAddress: packet.macAddress,
       iotVersion: packet.iotVersion,
       ecuVersion: packet.ecuVersion,
-      updatedAt: new Date(),
+      updatedAt,
     };
 
     await isUnregistered(kickboard.kickboardId);

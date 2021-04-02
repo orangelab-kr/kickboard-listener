@@ -8,6 +8,7 @@ import logger from '../tools/logger';
 export default async function onConfigSubscribe(
   kickboard: KickboardClient,
   packet: PacketConfig,
+  updatedAt: Date,
   done: () => void
 ): Promise<void> {
   const startTime = new Date();
@@ -28,7 +29,7 @@ export default async function onConfigSubscribe(
       bluetoothKey: packet.bluetoothKey,
       speedLimit: packet.speedLimit,
       networkMode: packet.networkMode,
-      updatedAt: new Date(),
+      updatedAt,
     };
 
     await ConfigModel.updateOne(where, data, options);
