@@ -1,6 +1,4 @@
 FROM node:14-alpine
-
-ENV NODE_ENV=prod
 ARG CODEARTIFACT_AUTH_TOKEN
 
 COPY . /app
