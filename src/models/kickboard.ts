@@ -8,6 +8,7 @@ export interface KickboardDoc extends Document {
   franchiseId: string;
   mode: KickboardMode;
   lost: KickboardLost;
+  maxSpeed: number | null;
   collect: KickboardCollect;
   status?: StatusDoc;
   updatedAt?: Date;
@@ -43,6 +44,7 @@ export const KickboardSchema = new Schema(
     kickboardCode: { type: String, required: true, unique: true },
     franchiseId: { type: String, required: true, index: true },
     regionId: { type: String, required: true, index: true },
+    maxSpeed: { type: Number, required: true, default: null },
     mode: {
       type: Number,
       enum: KickboardMode,

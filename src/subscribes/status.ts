@@ -122,8 +122,7 @@ async function checkLocationGeofence(
   packet: PacketStatus,
   createdAt: Date
 ): Promise<void> {
-  const { kickboardCode, kickboardId } = kickboardDoc;
-
+  const { kickboardCode, kickboardId, maxSpeed } = kickboardDoc;
   if (
     process.env.NODE_ENV === 'prod' ||
     kickboardDoc.mode !== KickboardMode.INUSE ||
@@ -148,13 +147,23 @@ async function checkLocationGeofence(
     });
 
     const profile = await geofence.getProfile();
-    const maxSpeed = profile.speed || 25;
-    if (config.speedLimit === maxSpeed) return;
+    const speed =
+      profile.speed && maxSpeed
+        ? profile.speed > maxSpeed
+          ? maxSpeed
+          : profile.speed
+        : profile.speed && !maxSpeed
+        ? profile.speed
+        : !profile.speed && maxSpeed
+        ? maxSpeed
+        : 25;
+
+    if (config.speedLimit === speed) return;
     logger.info(
-      `[Subscribe] 상태 - ${kickboardId} ${geofence.name}으로 진입하여 속도를 변경합니다. (${config.speedLimit}km/h -> ${maxSpeed}km/h)`
+      `[Subscribe] 상태 - ${kickboardId} 속도가 변경되었습니다. (${geofence.name}, ${config.speedLimit}km/h -> ${speed}km/h)`
     );
 
-    await kickboardClient.setSpeedLimit(maxSpeed || 25);
+    await kickboardClient.setSpeedLimit(speed || 25);
   } catch (err) {
     logger.error(
       `[Subscribe] 상태 - ${kickboardId} 속도 제한을 할 수 없습니다.`
