@@ -9,10 +9,7 @@ import {
 
 import { KickboardService } from 'kickboard-sdk';
 import MongoDB from './tools/mongodb';
-import dotenv from 'dotenv';
 import logger from './tools/logger';
-
-if (process.env.NODE_ENV === 'dev') dotenv.config({ path: '.env.dev' });
 
 async function main() {
   try {
