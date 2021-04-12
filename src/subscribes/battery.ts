@@ -1,9 +1,7 @@
 import * as Sentry from '@sentry/node';
 
+import { BatteryModel, logger } from '..';
 import { KickboardClient, PacketBattery } from 'kickboard-sdk';
-
-import { BatteryModel } from '../models';
-import logger from '../tools/logger';
 
 export default async function onBatterySubscribe(
   kickboard: KickboardClient,
@@ -37,7 +35,7 @@ export default async function onBatterySubscribe(
     );
   } catch (err) {
     logger.error(
-      `[Subscribe] 배터리 - ${kickboard.kickboardId}  구독을 저장하지 못했습니다.`
+      `[Subscribe] 배터리 - ${kickboard.kickboardId} 구독을 저장하지 못했습니다.`
     );
 
     logger.error(`[Subscribe] ${err.stack}`);

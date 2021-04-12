@@ -1,8 +1,8 @@
-import logger from './logger';
+import { logger } from '.';
 import mongoose from 'mongoose';
 import { readFileSync } from 'fs';
 
-export default class MongoDB {
+export class MongoDB {
   public static async init(): Promise<void> {
     const sslCA = [readFileSync('rds-combined-ca-bundle.pem')];
     const MONGODB_URI =

@@ -6,11 +6,11 @@ import {
   KickboardMode,
   KickboardModel,
   StatusModel,
-} from '../models';
+  logger,
+} from '..';
 import { KickboardPermission, LocationPermission } from 'openapi-internal-sdk';
 
-import InternalClient from '../tools/internalClient';
-import logger from '../tools/logger';
+import { InternalClient } from '../tools';
 import moment from 'moment';
 
 const internalLocationClient = InternalClient.getLocation([
