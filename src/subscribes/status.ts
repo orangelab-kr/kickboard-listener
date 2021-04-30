@@ -11,7 +11,7 @@ import {
 import { KickboardPermission, LocationPermission } from 'openapi-internal-sdk';
 
 import { InternalClient } from '../tools';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const internalLocationClient = InternalClient.getLocation([
   LocationPermission.GEOFENCES_LOCATION,
@@ -126,7 +126,7 @@ async function checkLocationGeofence(
   if (
     process.env.NODE_ENV === 'prod' ||
     kickboardDoc.mode !== KickboardMode.INUSE ||
-    moment(createdAt).add(1, 'minutes').isBefore()
+    dayjs(createdAt).add(1, 'minutes').isBefore(dayjs())
   ) {
     logger.debug(
       `[Subscribe] 상태 - ${kickboardId} 속도 제한을 하지 않습니다. 1분 이전 데이터이거나, 이용 중이지 않거나 프로덕션 모드입니다.`
