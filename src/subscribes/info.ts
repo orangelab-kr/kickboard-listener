@@ -27,7 +27,6 @@ export default async function onInfoSubscribe(
       updatedAt,
     };
 
-    await isUnregistered(kickboard.kickboardId);
     await InfoModel.updateOne(where, data, options);
     const time = Date.now() - startTime.getTime();
     logger.info(
@@ -43,13 +42,4 @@ export default async function onInfoSubscribe(
   } finally {
     done();
   }
-}
-async function isUnregistered(kickboardId: string): Promise<void> {
-  const where = { kickboardId };
-  const kickboard = await KickboardModel.findOne(where);
-  if (!kickboard || kickboard.mode !== KickboardMode.UNREGISTERED) return;
-  await KickboardModel.updateOne(where, { mode: KickboardMode.READY });
-  logger.info(
-    `[Subscribe] 정보 - ${kickboard.kickboardId} 신규 킥보드를 발견하였습니다.`
-  );
 }

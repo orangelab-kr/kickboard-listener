@@ -89,6 +89,7 @@ export default async function onStatusSubscribe(
 
     const { _id } = await StatusModel.create(data);
     await KickboardModel.updateOne({ kickboardId }, { status: _id });
+    await isUnregistered(kickboardDoc);
     const time = Date.now() - startTime.getTime();
     await checkLocationGeofence(
       kickboardClient,
@@ -176,4 +177,17 @@ async function checkLocationGeofence(
 
     Sentry.captureException(err);
   }
+}
+
+async function isUnregistered(kickboardDoc: KickboardDoc): Promise<void> {
+  const { kickboardId, mode } = kickboardDoc;
+  if (mode !== KickboardMode.UNREGISTERED) return;
+  await KickboardModel.updateOne(
+    { kickboardId },
+    { mode: KickboardMode.READY }
+  );
+
+  logger.info(
+    `[Subscribe] 정보 - ${kickboardDoc.kickboardId} 신규 킥보드를 발견하였습니다.`
+  );
 }
