@@ -568,7 +568,7 @@ cross-spawn@^7.0.1, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-dayjs@^1.10.5, dayjs@^1.10.7:
+dayjs@^1.10.7:
   version "1.10.7"
   resolved "https://hikick-547032093617.d.codeartifact.ap-northeast-1.amazonaws.com:443/npm/hikick/dayjs/-/dayjs-1.10.7.tgz#2cf5f91add28116748440866a0a1d26f3a6ce468"
   integrity sha512-P6twpd70BcPK34K26uJ1KT3wlhpuOAPoMwJzpsIWUxHZ7wpmbdZL/hQqBDfz7hGurYSa5PhzdhDHtt319hL3ig==
@@ -1126,15 +1126,15 @@ kareem@2.3.2:
   resolved "https://hikick-547032093617.d.codeartifact.ap-northeast-1.amazonaws.com:443/npm/hikick/kareem/-/kareem-2.3.2.tgz#78c4508894985b8d38a0dc15e1a8e11078f2ca93"
   integrity sha512-STHz9P7X2L4Kwn72fA4rGyqyXdmrMSdxqHx9IXon/FXluXieaFA6KJ2upcHAHxQPQ0LeM/OjLrhFxifHewOALQ==
 
-kickboard-sdk@^1.4.4:
-  version "1.4.4"
-  resolved "https://hikick-547032093617.d.codeartifact.ap-northeast-1.amazonaws.com:443/npm/hikick/kickboard-sdk/-/kickboard-sdk-1.4.4.tgz#eb492799ca0fb72a2b2f5020b3f6120c8bd2a645"
-  integrity sha512-HGlOPWpVMbQA6m7XVyV02r6EyUZ4WAZAdsTfBaXy5OR4hWxz7/1b2VZ7UmstiD02HgUgE4bmDAgUqfvU1RCvFQ==
+kickboard-sdk@^1.4.6:
+  version "1.4.6"
+  resolved "https://hikick-547032093617.d.codeartifact.ap-northeast-1.amazonaws.com:443/npm/hikick/kickboard-sdk/-/kickboard-sdk-1.4.6.tgz#d87ab2683aef20a5fa5e9347de4e75ee70e06752"
+  integrity sha512-WIVkJhM7brxDzKDS7uEQ/Wg684mwRtPP8eHFl9C4GOjRyYf+9dopr+nlmsHLqbWpjcjQOZMZj2oHRU/iD/mSlQ==
   dependencies:
     amqplib "^0.8.0"
     class-validator "^0.13.1"
     cross-env "^7.0.2"
-    dayjs "^1.10.5"
+    dayjs "^1.10.7"
     events "^3.2.0"
 
 kuler@^2.0.0:

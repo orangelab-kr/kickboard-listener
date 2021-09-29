@@ -43,7 +43,7 @@ export enum KickboardCollect {
 
 export const KickboardSchema = new Schema(
   {
-    kickboardId: { type: String, required: true },
+    kickboardId: { type: String, required: true, index: true },
     kickboardCode: { type: String, required: true, unique: true },
     franchiseId: { type: String, required: true, index: true },
     regionId: { type: String, required: true, index: true },
