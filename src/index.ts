@@ -25,7 +25,7 @@ async function main() {
     await registerSubscribe(service);
 
     logger.info('[Main] 시스템이 준비되었습니다.');
-  } catch (err) {
+  } catch (err: any) {
     logger.error('[Service] 시스템을 활성화할 수 없습니다.');
     logger.error(`[Service] ${err.stack}`);
     Sentry.captureException(err);
@@ -46,7 +46,7 @@ async function connect(): Promise<KickboardService> {
     logger.info('[Service] 성공적으로 킥보드 서비스와 연결되었습니다.');
 
     return service;
-  } catch (err) {
+  } catch (err: any) {
     logger.error('[Service] 킥보드 서비스와 연결에 실패하였습니다.');
     throw Error('킥보드 서비스와 연결에 실패하였습니다.');
   }

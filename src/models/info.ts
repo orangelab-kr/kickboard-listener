@@ -8,6 +8,7 @@ export interface InfoDoc extends Document {
   totalCapacity: number;
   cellType: string;
   cells: number[];
+  createdAt: Date;
   updatedAt: Date;
 }
 

@@ -32,7 +32,7 @@ export default async function onInfoSubscribe(
     logger.info(
       `[Subscribe] 정보 - ${kickboard.kickboardId} 처리를 완료하였습니다. ${time}ms`
     );
-  } catch (err) {
+  } catch (err: any) {
     logger.error(
       `[Subscribe] 정보 - ${kickboard.kickboardId} 구독을 저장하지 못했습니다.`
     );

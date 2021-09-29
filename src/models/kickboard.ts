@@ -1,16 +1,19 @@
-import { Document, Schema, model } from 'mongoose';
-
-import { StatusDoc } from './status';
+import { Document, model, Schema } from 'mongoose';
+import { StatusDoc } from '.';
 
 export interface KickboardDoc extends Document {
   kickboardId: string;
   kickboardCode: string;
   franchiseId: string;
+  regionId: string;
+  maxSpeed: number | null;
+  photo: string | null;
   mode: KickboardMode;
   lost: KickboardLost;
-  maxSpeed: number | null;
   collect: KickboardCollect;
   status?: StatusDoc;
+  helmetId?: string | null;
+  disconnectedAt?: Date | null;
   updatedAt?: Date;
   createdAt?: Date;
 }
@@ -40,12 +43,12 @@ export enum KickboardCollect {
 
 export const KickboardSchema = new Schema(
   {
-    kickboardId: { type: String, required: true, unique: true },
+    kickboardId: { type: String, required: true },
     kickboardCode: { type: String, required: true, unique: true },
     franchiseId: { type: String, required: true, index: true },
     regionId: { type: String, required: true, index: true },
-    maxSpeed: { type: Number, required: true, default: null },
-    photo: { type: String, required: true, default: null },
+    maxSpeed: { type: Number, default: null },
+    photo: { type: String, default: null },
     mode: {
       type: Number,
       enum: KickboardMode,
@@ -60,6 +63,8 @@ export const KickboardSchema = new Schema(
       required: false,
     },
     status: { type: Schema.Types.ObjectId, ref: 'status' },
+    helmetId: { type: Schema.Types.ObjectId, ref: 'helmet' },
+    disconnectedAt: { type: Date, required: false },
   },
   { timestamps: true }
 );

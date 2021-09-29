@@ -18,9 +18,9 @@ const internalLocationClient = InternalClient.getLocation([
 ]);
 
 const internalKickboardClient = InternalClient.getKickboard([
-  KickboardPermission.METHOD_LATEST,
-  KickboardPermission.LOOKUP_CONFIG,
-  KickboardPermission.LOOKUP_DETAIL,
+  KickboardPermission.KICKBOARD_METHOD_LATEST,
+  KickboardPermission.KICKBOARD_LOOKUP_CONFIG,
+  KickboardPermission.KICKBOARD_LOOKUP_DETAIL,
 ]);
 
 export default async function onStatusSubscribe(
@@ -101,12 +101,12 @@ export default async function onStatusSubscribe(
     logger.info(
       `[Subscribe] 상태 - ${kickboardId} 처리를 완료하였습니다. ${time}ms`
     );
-  } catch (err) {
+  } catch (err: any) {
     logger.error(
       `[Subscribe] 상태 - ${kickboardId} 구독을 저장하지 못했습니다.`
     );
 
-    if (process.env.NODE_ENV === 'dev') {
+    if (process.env.NODE_ENV !== 'prod') {
       logger.error(err.name);
       logger.error(err.stack);
     }
@@ -165,12 +165,12 @@ async function checkLocationGeofence(
     );
 
     await kickboardClient.setSpeedLimit(speed || 25);
-  } catch (err) {
+  } catch (err: any) {
     logger.error(
       `[Subscribe] 상태 - ${kickboardId} 속도 제한을 할 수 없습니다.`
     );
 
-    if (process.env.NODE_ENV === 'dev') {
+    if (process.env.NODE_ENV !== 'prod') {
       logger.error(err.name);
       logger.error(err.stack);
     }

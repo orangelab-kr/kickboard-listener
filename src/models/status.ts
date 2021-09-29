@@ -5,10 +5,8 @@ import {
   PacketStatusTrip,
 } from 'kickboard-sdk';
 
-import { Dayjs } from 'dayjs';
-
 export declare class PacketStatusGps {
-  timestamp: Dayjs;
+  timestamp: Date;
   latitude: number;
   longitude: number;
   satelliteUsedCount: number;

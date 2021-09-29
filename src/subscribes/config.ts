@@ -35,7 +35,7 @@ export default async function onConfigSubscribe(
     logger.info(
       `[Subscribe] 설정 - ${kickboard.kickboardId} 처리를 완료하였습니다. ${time}ms`
     );
-  } catch (err) {
+  } catch (err: any) {
     logger.error(
       `[Subscribe] 설정 - ${kickboard.kickboardId} 구독을 저장하지 못했습니다.`
     );
