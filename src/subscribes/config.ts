@@ -11,7 +11,7 @@ export default async function onConfigSubscribe(
 ): Promise<void> {
   const startTime = new Date();
   logger.debug(
-    `[Subscribe] 설정 - ${kickboard.kickboardId} 요청을 처리를 시작합니다.`
+    `Subscribe / 설정 - ${kickboard.kickboardId} 요청을 처리를 시작합니다.`
   );
 
   try {
@@ -33,14 +33,14 @@ export default async function onConfigSubscribe(
     await ConfigModel.updateOne(where, data, options);
     const time = Date.now() - startTime.getTime();
     logger.info(
-      `[Subscribe] 설정 - ${kickboard.kickboardId} 처리를 완료하였습니다. ${time}ms`
+      `Subscribe / 설정 - ${kickboard.kickboardId} 처리를 완료하였습니다. ${time}ms`
     );
   } catch (err: any) {
     logger.error(
-      `[Subscribe] 설정 - ${kickboard.kickboardId} 구독을 저장하지 못했습니다.`
+      `Subscribe / 설정 - ${kickboard.kickboardId} 구독을 저장하지 못했습니다.`
     );
 
-    logger.error(`[Subscribe] ${err.stack}`);
+    logger.error(`Subscribe / ${err.stack}`);
     Sentry.captureException(err);
   } finally {
     done();

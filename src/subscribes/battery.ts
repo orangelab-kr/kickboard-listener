@@ -11,7 +11,7 @@ export default async function onBatterySubscribe(
 ): Promise<void> {
   const startTime = new Date();
   logger.debug(
-    `[Subscribe] 배터리 - ${kickboard.kickboardId} 요청을 처리를 시작합니다.`
+    `Subscribe / 배터리 - ${kickboard.kickboardId} 요청을 처리를 시작합니다.`
   );
 
   try {
@@ -31,14 +31,14 @@ export default async function onBatterySubscribe(
     await BatteryModel.updateOne(where, data, options);
     const time = Date.now() - startTime.getTime();
     logger.info(
-      `[Subscribe] 배터리 - ${kickboard.kickboardId} 처리를 완료하였습니다. ${time}ms`
+      `Subscribe / 배터리 - ${kickboard.kickboardId} 처리를 완료하였습니다. ${time}ms`
     );
   } catch (err: any) {
     logger.error(
-      `[Subscribe] 배터리 - ${kickboard.kickboardId} 구독을 저장하지 못했습니다.`
+      `Subscribe / 배터리 - ${kickboard.kickboardId} 구독을 저장하지 못했습니다.`
     );
 
-    logger.error(`[Subscribe] ${err.stack}`);
+    logger.error(`Subscribe / ${err.stack}`);
     Sentry.captureException(err);
   } finally {
     done();

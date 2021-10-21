@@ -7,6 +7,6 @@ export class MongoDB {
       process.env.DATABASE_URL || 'mongodb://localhost:27017/kickboard';
     mongoose.Promise = global.Promise;
     await mongoose.connect(DATABASE_URL);
-    logger.info(`[MongoDB] 데이터베이스 준비가 완료되었습니다.`);
+    logger.info(`MongoDB / 데이터베이스 준비가 완료되었습니다.`);
   }
 }
