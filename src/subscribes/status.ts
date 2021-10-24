@@ -109,6 +109,10 @@ export default async function onStatusSubscribe(
       KickboardModel.updateOne({ kickboardId }, { status: status._id }),
       isUnregistered(kickboardDoc),
       isUnauthorizedMovement(kickboardDoc, status),
+      isMovingTooFast(kickboardDoc, status),
+      isUnstableUpdateCycle(kickboardDoc, beforeStatus, status),
+      isFastBatteryDrain(kickboardDoc, beforeStatus, status),
+      isLowBattery(kickboardDoc, status),
       checkLocationGeofence({
         kickboardClient,
         kickboardDoc,
@@ -206,7 +210,7 @@ async function isUnregistered(kickboardDoc: KickboardDoc): Promise<void> {
     );
 
     logger.info(
-      `Subscribe / 정보 - ${kickboardDoc.kickboardId} 신규 킥보드를 발견하였습니다.`
+      `Subscribe / 상태 - ${kickboardDoc.kickboardId} 신규 킥보드를 발견하였습니다.`
     );
   } catch (err: any) {
     logger.error(
@@ -222,13 +226,80 @@ async function isUnregistered(kickboardDoc: KickboardDoc): Promise<void> {
   }
 }
 
+async function isMovingTooFast(
+  kickboard: KickboardDoc,
+  status: StatusDoc
+): Promise<void> {
+  if (kickboard.mode !== KickboardMode.INUSE) return;
+  if (status.speed <= 25 && status.gps.speed <= 25) return;
+  await reportMonitoringMetrics('movingTooFast', { kickboard, status });
+
+  logger.info(
+    `Subscribe / 상태 - ${kickboard.kickboardCode} 킥보드가 너무 빠릅니다. (Wheel: ${status.speed}KM, Gps: ${status.gps.speed}KM)`
+  );
+}
+
+async function isUnstableUpdateCycle(
+  kickboard: KickboardDoc,
+  lastStatus: StatusDoc | null,
+  status: StatusDoc
+): Promise<void> {
+  if (!lastStatus) return;
+  const diffTime = status.createdAt.getTime() - lastStatus.createdAt.getTime();
+  if (diffTime <= 1000 * 60 * 7) return;
+  await reportMonitoringMetrics('unstableUpdateCycle', {
+    kickboard,
+    status,
+    lastStatus,
+  });
+
+  logger.info(
+    `Subscribe / 상태 - ${
+      kickboard.kickboardCode
+    } 킥보드의 업데이트 주기가 너무 느립니다. (${diffTime / 1000}초)`
+  );
+}
+
+async function isFastBatteryDrain(
+  kickboard: KickboardDoc,
+  lastStatus: StatusDoc | null,
+  status: StatusDoc
+): Promise<void> {
+  if (!lastStatus) return;
+  const diffBattery =
+    status.power.scooter.battery - lastStatus.power.scooter.battery;
+  if (diffBattery < 2) return;
+  await reportMonitoringMetrics('fastBatteryDrain', {
+    kickboard,
+    status,
+    lastStatus,
+  });
+
+  logger.info(
+    `Subscribe / 상태 - ${kickboard.kickboardCode} 킥보드의 배터리 소모 속도가 너무 빠릅니다. (${diffBattery}%)`
+  );
+}
+
 async function isUnauthorizedMovement(
   kickboard: KickboardDoc,
   status: StatusDoc
 ): Promise<void> {
+  if (kickboard.mode === KickboardMode.COLLECTED) return;
   if (!status.reportReason.includes(0)) return;
   await reportMonitoringMetrics('unauthorizedMovement', { kickboard, status });
   logger.info(
-    `Subscribe / 정보 - ${kickboard.kickboardCode}에서 비정상적인 움직임이 발생하였습니다.`
+    `Subscribe / 상태 - ${kickboard.kickboardCode} 킥보드에서 비정상적인 움직임이 발생하였습니다.`
+  );
+}
+
+async function isLowBattery(
+  kickboard: KickboardDoc,
+  status: StatusDoc
+): Promise<void> {
+  if (status.power.scooter.battery > 0 || status.power.iot.battery > 90) return;
+  await reportMonitoringMetrics('lowBattery', { kickboard, status });
+
+  logger.info(
+    `Subscribe / 상태 - ${kickboard.kickboardCode} 킥보드의 배터리가 부족합니다. (scooter: ${status.power.scooter.battery}%, iot: ${status.power.iot.battery}%)`
   );
 }
