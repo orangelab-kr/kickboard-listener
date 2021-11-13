@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/node';
+import axios from 'axios';
 import dayjs from 'dayjs';
 import { KickboardClient, PacketStatus } from 'kickboard-sdk';
 import {
@@ -23,7 +24,7 @@ let internalKickboardClient: InternalKickboardClient;
 const getLocation = (): InternalLocationClient => {
   if (internalLocationClient) return internalLocationClient;
   internalLocationClient = InternalClient.getLocation([
-    LocationPermission.GEOFENCES_LOCATION,
+    LocationPermission.LOCATION_GEOFENCE_LOCATION,
   ]);
 
   return internalLocationClient;
@@ -149,13 +150,16 @@ async function checkLocationGeofence(props: {
 }): Promise<void> {
   const { kickboardClient, kickboardDoc, packet, createdAt } = props;
   const { kickboardCode, kickboardId, maxSpeed } = kickboardDoc;
+  const { latitude: lat, longitude: lng } = packet.gps;
   if (
     process.env.NODE_ENV === 'prod' ||
     kickboardDoc.mode !== KickboardMode.INUSE ||
-    dayjs(createdAt).add(1, 'minutes').isBefore(dayjs())
+    dayjs(createdAt).add(1, 'minutes').isBefore(dayjs()) ||
+    lat === 0 ||
+    lng === 0
   ) {
     logger.debug(
-      `Subscribe / 상태 - ${kickboardId} 속도 제한을 하지 않습니다. 1분 이전 데이터이거나, 이용 중이지 않거나 프로덕션 모드입니다.`
+      `Subscribe / 상태 - ${kickboardId} 속도 제한을 하지 않습니다. 1분 이전 데이터이거나, 이용 중이지 않거나 프로덕션 모드입니다. 또는 올바른 좌표가 아닙니다.`
     );
 
     return;
@@ -166,7 +170,6 @@ async function checkLocationGeofence(props: {
       .getKickboard(kickboardCode)
       .then((kickboard) => kickboard.getLatestConfig());
 
-    const { latitude: lat, longitude: lng } = packet.gps;
     const geofence = await getLocation().getGeofenceByLocation({ lat, lng });
     const profile = await geofence.getProfile();
     const speed =
@@ -178,25 +181,30 @@ async function checkLocationGeofence(props: {
         ? profile.speed
         : !profile.speed && maxSpeed
         ? maxSpeed
-        : 25;
+        : 20;
 
     if (config.speedLimit === speed) return;
     logger.info(
       `Subscribe / 상태 - ${kickboardId} 속도가 변경되었습니다. (${geofence.name}, ${config.speedLimit}km/h -> ${speed}km/h)`
     );
 
-    await kickboardClient.setSpeedLimit(speed || 25);
+    await kickboardClient.setSpeedLimit(speed);
+    await axios({
+      method: 'POST',
+      url: '/webhook/speedChange',
+      baseURL: String(process.env.HIKICK_OPENAPI_RIDE_URL),
+      data: { kickboard: kickboardDoc, config, geofence, speed },
+    });
   } catch (err: any) {
+    const eventId = Sentry.captureException(err);
     logger.error(
-      `Subscribe / 상태 - ${kickboardId} 속도 제한을 할 수 없습니다.`
+      `Subscribe / 상태 - ${kickboardId} 속도 제한을 할 수 없습니다. (${eventId})`
     );
 
     if (process.env.NODE_ENV !== 'prod') {
       logger.error(err.name);
       logger.error(err.stack);
     }
-
-    Sentry.captureException(err);
   }
 }
 
@@ -213,16 +221,15 @@ async function isUnregistered(kickboardDoc: KickboardDoc): Promise<void> {
       `Subscribe / 상태 - ${kickboardDoc.kickboardId} 신규 킥보드를 발견하였습니다.`
     );
   } catch (err: any) {
+    const eventId = Sentry.captureException(err);
     logger.error(
-      `Subscribe / 상태 - ${kickboardDoc.kickboardId} 신규 킥보드의 상태를 변경할 수 없습니다.`
+      `Subscribe / 상태 - ${kickboardDoc.kickboardId} 신규 킥보드의 상태를 변경할 수 없습니다. (${eventId})`
     );
 
     if (process.env.NODE_ENV !== 'prod') {
       logger.error(err.name);
       logger.error(err.stack);
     }
-
-    Sentry.captureException(err);
   }
 }
 
