@@ -19,8 +19,10 @@ import {
   StatusModel,
 } from '..';
 
+const defaultRegionId = String(process.env.DEFAULT_REGION_ID);
 let internalLocationClient: InternalLocationClient;
 let internalKickboardClient: InternalKickboardClient;
+
 const getLocation = (): InternalLocationClient => {
   if (internalLocationClient) return internalLocationClient;
   internalLocationClient = InternalClient.getLocation([
@@ -117,7 +119,7 @@ export default async function onStatusSubscribe(
       checkLocationGeofence({
         kickboardClient,
         kickboardDoc,
-        packet,
+        status,
         createdAt,
       }),
     ]);
@@ -145,21 +147,16 @@ export default async function onStatusSubscribe(
 async function checkLocationGeofence(props: {
   kickboardClient: KickboardClient;
   kickboardDoc: KickboardDoc;
-  packet: PacketStatus;
+  status: StatusDoc;
   createdAt: Date;
 }): Promise<void> {
-  const { kickboardClient, kickboardDoc, packet, createdAt } = props;
+  const { kickboardClient, kickboardDoc, status, createdAt } = props;
   const { kickboardCode, kickboardId, maxSpeed } = kickboardDoc;
-  const { latitude: lat, longitude: lng } = packet.gps;
-  if (
-    process.env.NODE_ENV === 'prod' ||
-    kickboardDoc.mode !== KickboardMode.INUSE ||
-    dayjs(createdAt).add(1, 'minutes').isBefore(dayjs()) ||
-    lat === 0 ||
-    lng === 0
-  ) {
+  const { latitude: lat, longitude: lng } = status.gps;
+  const isOld = dayjs(createdAt).add(1, 'minutes').isBefore(dayjs());
+  if (isOld || lat === 0 || lng === 0) {
     logger.debug(
-      `Subscribe / 상태 - ${kickboardId} 속도 제한을 하지 않습니다. 1분 이전 데이터이거나, 이용 중이지 않거나 프로덕션 모드입니다. 또는 올바른 좌표가 아닙니다.`
+      '위치에 대한 정보를 조회하지 않습니다. 1분 이전 데이터이거나, 올바른 좌표가 아닙니다.'
     );
 
     return;
@@ -172,6 +169,7 @@ async function checkLocationGeofence(props: {
 
     const geofence = await getLocation().getGeofenceByLocation({ lat, lng });
     const profile = await geofence.getProfile();
+
     const speed =
       profile.speed && maxSpeed
         ? profile.speed > maxSpeed
@@ -183,7 +181,36 @@ async function checkLocationGeofence(props: {
         ? maxSpeed
         : 20;
 
-    if (config.speedLimit === speed) return;
+    if (
+      geofence.region &&
+      geofence.regionId !== defaultRegionId &&
+      kickboardDoc.regionId === defaultRegionId
+    ) {
+      const { name, regionId } = geofence.region;
+      logger.info(
+        `Subscribe / 상태 - ${kickboardId} 킥보드가 ${name}(으)로 배정되었습니다.`
+      );
+
+      await kickboardDoc.updateOne({ regionId });
+      await reportMonitoringMetrics('regionAllocated', {
+        kickboard: kickboardDoc,
+        region: geofence.region,
+        status,
+      });
+    }
+
+    if (
+      config.speedLimit === speed ||
+      kickboardDoc.mode !== KickboardMode.INUSE ||
+      process.env.NODE_ENV === 'prod'
+    ) {
+      logger.debug(
+        `Subscribe / 상태 - ${kickboardId} 속도 제한을 하지 않습니다. 이용 중이지 않거나 프로덕션 모드입니다.`
+      );
+
+      return;
+    }
+
     logger.info(
       `Subscribe / 상태 - ${kickboardId} 속도가 변경되었습니다. (${geofence.name}, ${config.speedLimit}km/h -> ${speed}km/h)`
     );
@@ -198,7 +225,7 @@ async function checkLocationGeofence(props: {
   } catch (err: any) {
     const eventId = Sentry.captureException(err);
     logger.error(
-      `Subscribe / 상태 - ${kickboardId} 속도 제한을 할 수 없습니다. (${eventId})`
+      `Subscribe / 상태 - ${kickboardId} 위치에 대한 정보를 조회할 수 없습니다. (${eventId})`
     );
 
     if (process.env.NODE_ENV !== 'prod') {

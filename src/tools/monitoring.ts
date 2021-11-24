@@ -13,7 +13,7 @@ export async function reportMonitoringMetrics(
       url: `/monitors/${monitorId}/metrics`,
       data: metricsData,
       headers: {
-        Authorization: `bearer ${process.env.HIKICK_CORESERVICE_MONITORING_KEY}`,
+        Authorization: `Bearer ${process.env.HIKICK_CORESERVICE_MONITORING_KEY}`,
       },
     });
   } catch (err: any) {
