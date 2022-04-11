@@ -17,7 +17,6 @@ export async function reportMonitoringMetrics(
       },
     });
   } catch (err: any) {
-    Sentry.captureException(err);
     const metricsJson = JSON.stringify(metricsData);
     logger.error(
       `Monitoring / 모니터링 데이터를 전송할 수 없습니다. (${monitorId}, ${metricsJson})`
