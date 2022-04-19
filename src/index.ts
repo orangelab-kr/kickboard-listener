@@ -9,7 +9,7 @@ import {
   onStatusSubscribe,
 } from '.';
 
-import { KickboardService } from 'kickboard-sdk';
+import { KickboardService } from '@hikick/kickboard-sdk';
 
 export * from './models';
 export * from './subscribes';

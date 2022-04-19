@@ -3,7 +3,7 @@ import {
   PacketStatusNetwork,
   PacketStatusPower,
   PacketStatusTrip,
-} from 'kickboard-sdk';
+} from '@hikick/kickboard-sdk';
 
 export declare class PacketStatusGps {
   timestamp: Date;

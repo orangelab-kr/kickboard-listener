@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 
 import { ConfigModel, logger } from '..';
-import { KickboardClient, PacketConfig } from 'kickboard-sdk';
+import { KickboardClient, PacketConfig } from '@hikick/kickboard-sdk';
 
 export default async function onConfigSubscribe(
   kickboard: KickboardClient,

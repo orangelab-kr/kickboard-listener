@@ -9,7 +9,7 @@ import {
   KickboardPermission,
   LocationPermission,
   PlatformPermission,
-} from 'openapi-internal-sdk';
+} from '@hikick/openapi-internal-sdk';
 
 export class InternalClient {
   public static getDiscount(

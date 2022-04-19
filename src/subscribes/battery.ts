@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 
 import { BatteryModel, logger } from '..';
-import { KickboardClient, PacketBattery } from 'kickboard-sdk';
+import { KickboardClient, PacketBattery } from '@hikick/kickboard-sdk';
 
 export default async function onBatterySubscribe(
   kickboard: KickboardClient,

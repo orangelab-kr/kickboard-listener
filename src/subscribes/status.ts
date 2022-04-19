@@ -1,13 +1,13 @@
 import * as Sentry from '@sentry/node';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import { KickboardClient, PacketStatus } from 'kickboard-sdk';
+import { KickboardClient, PacketStatus } from '@hikick/kickboard-sdk';
 import {
   InternalKickboardClient,
   InternalLocationClient,
   KickboardPermission,
   LocationPermission,
-} from 'openapi-internal-sdk';
+} from '@hikick/openapi-internal-sdk';
 import {
   InternalClient,
   KickboardDoc,

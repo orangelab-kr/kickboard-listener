@@ -3,7 +3,7 @@ import {
   PacketConfigGprs,
   PacketConfigMqtt,
   PacketConfigReportInterval,
-} from 'kickboard-sdk';
+} from '@hikick/kickboard-sdk';
 
 export interface ConfigDoc extends Document {
   kickboardId: string;
