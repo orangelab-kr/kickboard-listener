@@ -4,7 +4,9 @@ import dayjs from 'dayjs';
 import { KickboardClient, PacketStatus } from '@hikick/kickboard-sdk';
 import {
   InternalKickboardClient,
+  InternalKickboardConfig,
   InternalLocationClient,
+  InternalLocationGeofence,
   KickboardPermission,
   LocationPermission,
 } from '@hikick/openapi-internal-sdk';
@@ -144,6 +146,55 @@ export default async function onStatusSubscribe(
   }
 }
 
+function isMaxSpeedChanged(props: {
+  speed: number;
+  kickboardDoc: KickboardDoc;
+  config: InternalKickboardConfig;
+}) {
+  const { speed, kickboardDoc, config } = props;
+  if (config.speedLimit === speed) return false;
+  if (kickboardDoc.mode === KickboardMode.MYKICK) return true;
+
+  if (process.env.NODE_ENV === 'prod') return false;
+  if (kickboardDoc.mode !== KickboardMode.INUSE) return false;
+  return true;
+}
+
+async function checkMaxSpeed(props: {
+  geofence: InternalLocationGeofence;
+  kickboardClient: KickboardClient;
+  kickboardDoc: KickboardDoc;
+  config: InternalKickboardConfig;
+}) {
+  const { kickboardClient, kickboardDoc, config, geofence } = props;
+  const { kickboardId } = kickboardDoc;
+  const speed = kickboardDoc.maxSpeed || 20;
+  // const profile = await geofence.getProfile();
+  // const speed =
+  //   profile.speed && maxSpeed
+  //     ? profile.speed > maxSpeed
+  //       ? maxSpeed
+  //       : profile.speed
+  //     : profile.speed && !maxSpeed
+  //     ? profile.speed
+  //     : !profile.speed && maxSpeed
+  //     ? maxSpeed
+  //         : 20;
+
+  if (!isMaxSpeedChanged({ speed, kickboardDoc, config })) return;
+  logger.info(
+    `Subscribe / 상태 - ${kickboardId} 속도가 변경되었습니다. (${geofence.name}, ${config.speedLimit}km/h -> ${speed}km/h)`
+  );
+
+  await kickboardClient.setSpeedLimit(speed);
+  await axios({
+    method: 'POST',
+    url: '/webhook/speedChange',
+    baseURL: String(process.env.HIKICK_OPENAPI_RIDE_URL),
+    data: { kickboard: kickboardDoc, config, geofence, speed },
+  });
+}
+
 async function checkLocationGeofence(props: {
   kickboardClient: KickboardClient;
   kickboardDoc: KickboardDoc;
@@ -151,7 +202,7 @@ async function checkLocationGeofence(props: {
   createdAt: Date;
 }): Promise<void> {
   const { kickboardClient, kickboardDoc, status, createdAt } = props;
-  const { kickboardCode, kickboardId, maxSpeed } = kickboardDoc;
+  const { kickboardCode, kickboardId } = kickboardDoc;
   const { latitude: lat, longitude: lng } = status.gps;
   const isOld = dayjs(createdAt).add(1, 'minutes').isBefore(dayjs());
   if (isOld || lat === 0 || lng === 0) {
@@ -166,20 +217,7 @@ async function checkLocationGeofence(props: {
     const config = await getKickboard()
       .getKickboard(kickboardCode)
       .then((kickboard) => kickboard.getLatestConfig());
-
     const geofence = await getLocation().getGeofenceByLocation({ lat, lng });
-    const profile = await geofence.getProfile();
-
-    const speed =
-      profile.speed && maxSpeed
-        ? profile.speed > maxSpeed
-          ? maxSpeed
-          : profile.speed
-        : profile.speed && !maxSpeed
-        ? profile.speed
-        : !profile.speed && maxSpeed
-        ? maxSpeed
-        : 20;
 
     if (
       geofence.region &&
@@ -199,29 +237,7 @@ async function checkLocationGeofence(props: {
       });
     }
 
-    if (
-      config.speedLimit === speed ||
-      kickboardDoc.mode !== KickboardMode.INUSE ||
-      process.env.NODE_ENV === 'prod'
-    ) {
-      logger.debug(
-        `Subscribe / 상태 - ${kickboardId} 속도 제한을 하지 않습니다. 이용 중이지 않거나 프로덕션 모드입니다.`
-      );
-
-      return;
-    }
-
-    logger.info(
-      `Subscribe / 상태 - ${kickboardId} 속도가 변경되었습니다. (${geofence.name}, ${config.speedLimit}km/h -> ${speed}km/h)`
-    );
-
-    await kickboardClient.setSpeedLimit(speed);
-    await axios({
-      method: 'POST',
-      url: '/webhook/speedChange',
-      baseURL: String(process.env.HIKICK_OPENAPI_RIDE_URL),
-      data: { kickboard: kickboardDoc, config, geofence, speed },
-    });
+    await checkMaxSpeed({ geofence, kickboardClient, kickboardDoc, config });
   } catch (err: any) {
     const eventId = Sentry.captureException(err);
     logger.error(
